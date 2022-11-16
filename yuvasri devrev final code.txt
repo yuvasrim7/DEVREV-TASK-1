@@ -1,0 +1,249 @@
+package assignment;
+
+import java.nio.channels.MembershipKey;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import org.omg.Messaging.SyncScopeHelper;
+
+public class Library {
+
+    // Declared an array list of type book
+    private ArrayList<Book> Books;
+    private MemberList members;;
+    public Library(ArrayList<Book> Books, Member member) {
+        this.Books = Books;
+        this.members=members;
+    };
+    public void displayBooks() {
+        System.out.println("\t\t\t-----The Current Books in the library are-----");
+        for (int i = 0; i < Books.size(); i++) {
+            System.out.println("\n" + "\t\t" + Books.get(i).getTitle() + "\t\t\t" + "\n\t\tAuthor: "
+                    + Books.get(i).getAuthor() + "\n\t\tThis Books ID is: " + Books.get(i).getBookID() + "\t\t\t\t\t\t"
+                    + "\n\t\tIs this book on loan? " + Books.get(i).getOnLoan() + "\t\t\t\t\t"
+                    + "\n\t\tThe number of times which this book has been loaned: " + Books.get(i).getNumOfLoans()
+                    + "\t\t");
+        }
+    }
+
+    // method to remove permanently a book object
+    public void removeBook() // the parameter that is passed through
+                                // is the book id of the book that is to
+                                // be removed
+    {
+        Scanner input = new Scanner(System.in);
+        int bookID = 0;
+
+        boolean successful = false;
+        try {
+            do {
+
+                System.out.println("Please enter the book ID of the book you wish to delete");
+                bookID = input.nextInt();
+                for (int i = 0; i < Books.size(); i++) {
+                    if (bookID == Books.get(i).getBookID())
+
+                    {
+                        System.out.println("The Book " + Books.get(i).getTitle() + " was removed");
+                        Books.remove(i);
+                        successful = true;
+                        break;
+                    }
+
+                }
+                if (!successful) {
+                    System.out.println("Book ID " + bookID + " does not exist");
+                }
+
+            } while (successful == false);
+        } catch (Exception e) {
+            System.out.println("ERROR: Invalid input" + "\nYou have been returned to the main menu");
+        }
+    }
+
+    public void editBook() {
+
+        boolean successful = false;
+        try {
+            do {
+                Scanner sc = new Scanner(System.in);
+                System.out.println("Please enter the book ID of the book who's details you wish to change");
+                int bookID = sc.nextInt();
+                sc.nextLine();
+                for (int i = 0; i < Books.size(); i++) {
+                    if (Books.get(i).getBookID() == bookID) {
+
+                        System.out.println("Please enter the new name of the book:");
+                        String newTitle = sc.nextLine();
+                        Books.get(i).setTitle(newTitle);
+                        System.out.println("Please enter the name of the author of the book:");
+                        String newAuthor = sc.nextLine();
+                        Books.get(i).setAuthor(newAuthor);
+                        System.out.println("Change of book details successful" + "\nNew book title: " + newTitle
+                                + "\nNew author: " + newAuthor);
+                        successful = true;
+                    }
+
+                }
+                if (!successful) {
+                    System.out.println("This book does not exist ");
+                }
+
+            } while (successful == false);
+        } catch (Exception e) {
+            System.out.println("ERROR: Invalid input" + "\nYou have been returned to the main menu");
+        }
+    }
+
+    public void addBook() {
+
+        boolean successful = false;
+        int bookID = 0;
+        String title = "";
+        String author = "";
+        Scanner input = new Scanner(System.in);
+        do {
+
+            System.out.println("Please assign a 3 digit number for the books ID ");
+            bookID = input.nextInt();
+            input.nextLine();
+            if(bookID > 99 && bookID <1000){
+            for (int i = 0; i < Books.size(); i++) {
+                if(Books.get(i).getBookID()!= bookID){
+                    successful = true;
+                } else {
+                    System.out.println("This book ID already exists ");
+                }
+            }
+            } else { System.out.println("You must enter a number between 99 and 1000 ");
+            }
+        } while (successful == false);
+      do {
+            System.out.println("Please enter the name of book");
+            title = input.nextLine();
+
+            for (int i = 0; i < Books.size(); i++) {
+                if (Books.get(i).getTitle().equalsIgnoreCase(title)) {
+                    System.out.println("ERROR: This book already exists");
+                    successful = false;
+                } else {
+                    successful = true;
+                }
+            }
+        } while (successful == false);
+       do {
+            System.out.println("Please enter the author of the book");
+            author = input.nextLine();
+
+            successful = true;
+
+        } while (successful == false);
+        Book Book = new Book(bookID, title, author, false, 0, 0);
+        Books.add(Book);
+        System.out.println(
+                "Book creation succcessful:" + "\nTitle: " + title + "\nAuthor: " + author + "\nBook ID:" + bookID);
+    }
+
+    public void loanBook() {
+        Scanner input = new Scanner(System.in);
+        boolean successful = false;
+        do {
+            System.out.println(
+                    "\nPlease enter the book ID of the book that you wish to take out (Press 9 to exit to the main menu)");
+            int bookID = input.nextInt();
+            if (bookID == 9) {
+                successful = true;
+                break;
+            }
+
+            for (int i = 0; i < Books.size(); i++) {
+                if (Books.get(i).getBookID() == bookID) {
+                    do {
+                        System.out.println("\nHow long would you like to loan the book for (20 Days maximum):");
+                        int durationOnLoan = input.nextInt();
+                        if (durationOnLoan <= 20 && 1 <= durationOnLoan) {
+                            Books.get(i).setDurationOnLoan(durationOnLoan);
+                            successful = true;
+                        } else {
+                            System.out.println("The number of days you have entered is invalid");
+                        }
+                    } while (successful == false);
+
+                    System.out.println("\nThe book " + Books.get(i).getTitle() + " is now on loan");
+                    Books.get(i).setOnLoan(true);
+
+                    Books.get(i).setNumOfLoan(Books.get(i).getNumOfLoans() + 1);
+                    successful = true;
+                }
+
+            }
+
+            if (successful == false) {
+
+                System.out.println("This book does not exist ");
+            }
+
+        } while (successful == false);
+    }
+    public void returnBook() {
+
+        boolean successful = false;
+        Scanner input = new Scanner(System.in);
+        try {
+            do {
+
+                System.out.println(
+                        "Please enter the book ID of the book you wish to return (Press 9 to exit to the main menu");
+                int bookID = input.nextInt();
+                input.nextLine();
+                if (bookID == 9) {
+                    successful = true;
+                }
+
+                for (int i = 0; i < Books.size(); i++) {
+                    if (Books.get(i).getBookID() == bookID) {
+                        if (Books.get(i).getOnLoan() == true) {
+                            System.out.println("How long did you loan the book for?");
+                            int durationOnLoan = input.nextInt();
+                            if (durationOnLoan > Books.get(i).getDurationOnLoan()) {
+                                durationOnLoan -= Books.get(i).getDurationOnLoan();
+                                if (durationOnLoan < 3) {
+
+                                    System.out.println("You are " + durationOnLoan
+                                            + " day(s) late in returning the book" + "\nYou have been fined £3."
+                                            + "\n The book " + Books.get(i).getTitle() + " is now returned");
+                                    successful = true;
+
+                                } else {
+                                    System.out.println("You are " + durationOnLoan + " days late in returning the book"
+                                            + "\nYou have been fined £6.");
+                                    System.out
+                                            .println("The book " + Books.get(i).getTitle() + " has now been returned");
+                                    successful = true;
+
+                                }
+                            } else {
+                                Books.get(i).setOnLoan(false);
+                                System.out.println("The book " + Books.get(i).getTitle() + " has now been returned");
+                                successful = true;
+                            }
+
+                        } else if (Books.get(i).getOnLoan() == false) {
+                            System.out.println("\nThis book was not on loan");
+                            System.out.println("\nYou have been returned to the main menu");
+                            successful = true;
+                        }
+                    } else if (successful == false) {
+                        System.out.println("This book does not exist");
+                    }
+                }
+
+            } while (successful == false);
+        } catch (Exception e) {
+            System.out.println("ERROR: Invalid input" + "\nYou have been returned to the main menu");
+
+        }
+    }
+
+}
+
